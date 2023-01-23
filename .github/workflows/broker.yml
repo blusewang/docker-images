@@ -30,6 +30,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
+          file: broker.Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
           tags: bluse/broker:latest,bluse/broker:2.0.15
