@@ -15,8 +15,10 @@ RUN set -eux; \
   && wget --no-check-certificate https://github.com/blusewang/mosquitto-delay-message/archive/refs/tags/1.1.1.tar.gz -O 1.1.1.tar.gz \
   && tar zxf 1.1.1.tar.gz && cd mosquitto-delay-message-1.1.1 && cmake . && make && make install \
   && cd /root && rm -rf /root/* \
+  && addgroup --gid 80 mosquitto && useradd -s /bin/bash -c mosquitto -d /data -g 80 -G mosquitto -m -u 80 mosquitto \
   && apt purge -y wget build-essential cmake && apt autoremove -y && rm -rf /var/lib/apt/lists/*
 
+USER mosquitto
 VOLUME /data
 EXPOSE 1883 1884 1885 1886
 ENV LANG=zh_CN.UTF-8 \
