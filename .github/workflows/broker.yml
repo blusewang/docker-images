@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  amd64:
+  broker:
     runs-on: ubuntu-latest
     steps:
       -
@@ -29,7 +29,6 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v3
         with:
-          context: .
           file: {context}/postgres.Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
