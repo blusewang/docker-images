@@ -30,7 +30,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: {context}/postgres.Dockerfile
+          file: postgres.Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
           tags: bluse/postgres:latest,bluse/postgres:15.1
