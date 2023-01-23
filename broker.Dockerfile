@@ -12,8 +12,8 @@ RUN set -eux; \
   && sed -i 's/WITH_WEBSOCKETS:=no/WITH_WEBSOCKETS:=yes/g' config.mk \
   && sed -i 's/WITH_DOCS:=yes/WITH_DOCS:=no/g' config.mk \
   && make -j 3 && make install && cd .. \
-  && wget --no-check-certificate https://github.com/blusewang/mosquitto-delay-message/archive/refs/tags/1.1.1.tar.gz \
-  && tar zxf 111.tar.gz && cd 111 && cmake . && make && make install && cd .. \
+  && wget --no-check-certificate https://github.com/blusewang/mosquitto-delay-message/archive/refs/tags/1.1.1.tar.gz -O 1.1.1.tar.gz \
+  && tar zxf 1.1.1.tar.gz && cd mosquitto-delay-message-1.1.1 && cmake . && make && make install && cd .. \
   && cd .. && rm -rf * \
   && apt purge -y wget build-essential cmake && apt autoremove -y && rm -rf /var/lib/apt/lists/*
 
