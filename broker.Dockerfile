@@ -1,8 +1,7 @@
 FROM debian:bullseye-slim
 
 RUN set -eux; \
-  export http_proxy=http://192.168.1.1:8080 && export https_proxy=http://192.168.1.1:8080 \
-  && apt update && apt install -y --no-install-recommends locales wget build-essential cmake libssl-dev libcjson-dev libpq-dev \
+  apt update && apt install -y --no-install-recommends locales wget build-essential cmake libssl-dev libcjson-dev libpq-dev \
   && ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'zh_CN.UTF-8 UTF-8' > /etc/locale.gen && /usr/sbin/locale-gen \
   && cd /root \
   && wget https://github.com/warmcat/libwebsockets/archive/refs/tags/v4.3.1.tar.gz \
