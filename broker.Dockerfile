@@ -91,7 +91,7 @@ RUN set -x && \
         ca-certificates \
         cjson && \
     apk del build-deps && \
-    rm -rf /build \
+    rm -rf /build && rm -rf /tmp/* \
 
 VOLUME /data
 USER mosquitto
