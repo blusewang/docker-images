@@ -85,7 +85,6 @@ RUN set -x && \
         ca-certificates \
         cjson && \
     apk del build-deps && \
-    mkdir /data && \
     rm -rf /build && rm -rf /tmp/* \
 
 VOLUME /data
