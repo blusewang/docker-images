@@ -27,6 +27,7 @@ RUN set -x && \
     cd /build/lws && \
     cmake . \
         -DCMAKE_BUILD_TYPE=MinSizeRel \
+        -DCMAKE_INSTALL_PREFIX=/usr \
         -DDISABLE_WERROR=ON \
         -DLWS_IPV6=ON \
         -DLWS_WITHOUT_BUILTIN_GETIFADDRS=ON \
@@ -40,6 +41,7 @@ RUN set -x && \
         -DLWS_WITH_ZLIB=OFF && \
     make -j "$(nproc)" && make install && \
     rm -rf /root/.cmake && \
+    
     wget https://mosquitto.org/files/source/mosquitto-${VERSION}.tar.gz -O /tmp/mosq.tar.gz && \
     echo "$DOWNLOAD_SHA256  /tmp/mosq.tar.gz" | sha256sum -c - && \
     wget https://mosquitto.org/files/source/mosquitto-${VERSION}.tar.gz.asc -O /tmp/mosq.tar.gz.asc && \
@@ -61,21 +63,19 @@ RUN set -x && \
     tar --strip=1 -xf /tmp/mosq.tar.gz -C /build/mosq && \
     rm /tmp/mosq.tar.gz && \
     cd /build/mosq && \
-    make -j "$(nproc)" \
-        WITH_ADNS=no \
-        WITH_DOCS=no \
-        WITH_SHARED_LIBRARIES=yes \
-        WITH_SRV=no \
-        WITH_STRIP=yes \
-        WITH_WEBSOCKETS=yes && \
-    make install && \
+    sed -i 's|prefix?=/usr/local|prefix?=/usr|g' config.mk && \
+    sed -i 's|WITH_DOCS:=yes|WITH_DOCS:=no|g' config.mk && \
+    sed -i 's|WITH_WEBSOCKETS:=no|WITH_WEBSOCKETS:=yes|g' config.mk && \
+    make -j "$(nproc)" && make install && \
     addgroup -S -g 1883 mosquitto 2>/dev/null && \
     adduser -S -u 1883 -D -H -h /var/empty -s /sbin/nologin -G mosquitto -g mosquitto mosquitto 2>/dev/null && \
-    mkdir -p /data && \
+    mkdir -p /data && chown mosquitto:mosquitto /data && \
+    
     wget https://github.com/blusewang/mosquitto-delay-message/archive/refs/tags/${MDM_VERSION}.tar.gz -O /tmp/mdm.tar.gz && \
     mkdir -p /build/mdm && \
     tar --strip=1 -xf /tmp/mdm.tar.gz -C /build/mdm && \
     rm /tmp/mdm.tar.gz && \
+    sed -i 's|set(CMAKE_INSTALL_LIBDIR /usr/local/lib)|set(CMAKE_INSTALL_LIBDIR /usr/lib)|g' /build/mdm/CMakeLists.txt && \
     cd /build/mdm && \
     cmake . && \
     make -j "$(nproc)" && make install && \
@@ -85,10 +85,10 @@ RUN set -x && \
         ca-certificates \
         cjson && \
     apk del build-deps && \
+    mkdir /data && \
     rm -rf /build && rm -rf /tmp/* \
 
 VOLUME /data
 USER mosquitto
 EXPOSE 1883 1884 1885 1886
 CMD ["/usr/local/sbin/mosquitto", "-c", "/data/mosquitto.conf"]
-
