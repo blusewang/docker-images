@@ -96,5 +96,5 @@ RUN set -x && \
 VOLUME /data
 USER mosquitto
 EXPOSE 1883 1884 1885 1886
-CMD ["/usr/sbin/mosquitto", "-c", "/data/mosquitto.conf"]
+CMD ["/usr/local/sbin/mosquitto", "-c", "/data/mosquitto.conf"]
 
