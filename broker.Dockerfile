@@ -39,7 +39,7 @@ RUN set -x && \
         -DLWS_WITH_SHARED=OFF \
         -DLWS_WITH_ZIP_FOPS=OFF \
         -DLWS_WITH_ZLIB=OFF && \
-    make -j "$(nproc)" && \
+    make -j "$(nproc)" && make install && \
     rm -rf /root/.cmake && \
     wget https://mosquitto.org/files/source/mosquitto-${VERSION}.tar.gz -O /tmp/mosq.tar.gz && \
     echo "$DOWNLOAD_SHA256  /tmp/mosq.tar.gz" | sha256sum -c - && \
@@ -72,10 +72,10 @@ RUN set -x && \
         WITH_WEBSOCKETS=yes \
         prefix=/usr \
         binary && \
+    make install && \
     addgroup -S -g 1883 mosquitto 2>/dev/null && \
     adduser -S -u 1883 -D -H -h /var/empty -s /sbin/nologin -G mosquitto -g mosquitto mosquitto 2>/dev/null && \
     mkdir -p /data && \
-    
     wget https://github.com/blusewang/mosquitto-delay-message/archive/refs/tags/${MDM_VERSION}.tar.gz -O /tmp/mdm.tar.gz && \
     mkdir -p /build/mdm && \
     tar --strip=1 -xf /tmp/mdm.tar.gz -C /build/mdm && \
@@ -84,22 +84,8 @@ RUN set -x && \
     sed -i 's|include_directories(/usr/local/include)|include_directories(${INC_DIR})|g' CMakeLists.txt && \
     sed -i 's|link_directories(/usr/local/lib)|link_directories(${LIB_DIR})|g' CMakeLists.txt && \
     cmake -DINC_DIR=/build/mosq/include -DLIB_DIR=/build/mosq/lib . && \
-    make -j "$(nproc)" && \
+    make -j "$(nproc)" && make install && \
     rm -rf /root/.cmake && \
-    
-    install -d /usr/sbin/ && \
-    install -s -m755 /build/mosq/client/mosquitto_pub /usr/bin/mosquitto_pub && \
-    install -s -m755 /build/mosq/client/mosquitto_rr /usr/bin/mosquitto_rr && \
-    install -s -m755 /build/mosq/client/mosquitto_sub /usr/bin/mosquitto_sub && \
-    install -s -m644 /build/mosq/lib/libmosquitto.so.1 /usr/lib/libmosquitto.so.1 && \
-    install -s -m644 /build/mdm/libdelay_message.so /usr/lib/libdelay_message.so && \
-    install -s -m755 /build/mosq/src/mosquitto /usr/sbin/mosquitto && \
-    install -s -m755 /build/mosq/apps/mosquitto_ctrl/mosquitto_ctrl /usr/bin/mosquitto_ctrl && \
-    install -s -m755 /build/mosq/apps/mosquitto_passwd/mosquitto_passwd /usr/bin/mosquitto_passwd && \
-    install -s -m755 /build/mosq/plugins/dynamic-security/mosquitto_dynamic_security.so /usr/lib/mosquitto_dynamic_security.so && \
-    install -Dm644 /build/lws/LICENSE /usr/share/licenses/libwebsockets/LICENSE && \
-    install -Dm644 /build/mosq/epl-v20 /usr/share/licenses/mosquitto/epl-v20 && \
-    install -Dm644 /build/mosq/edl-v10 /usr/share/licenses/mosquitto/edl-v10 && \
     chown -R mosquitto:mosquitto /data && \
     apk --no-cache add \
         ca-certificates \
