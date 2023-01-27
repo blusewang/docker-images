@@ -27,7 +27,6 @@ RUN set -x && \
     cd /build/lws && \
     cmake . \
         -DCMAKE_BUILD_TYPE=MinSizeRel \
-        -DCMAKE_INSTALL_PREFIX=/usr \
         -DDISABLE_WERROR=ON \
         -DLWS_IPV6=ON \
         -DLWS_WITHOUT_BUILTIN_GETIFADDRS=ON \
@@ -61,17 +60,14 @@ RUN set -x && \
     mkdir -p /build/mosq && \
     tar --strip=1 -xf /tmp/mosq.tar.gz -C /build/mosq && \
     rm /tmp/mosq.tar.gz && \
-    make -C /build/mosq -j "$(nproc)" \
-        CFLAGS="-Wall -O2 -I/build/lws/include -I/build" \
-        LDFLAGS="-L/build/lws/lib" \
+    cd /build/mosq && \
+    make -j "$(nproc)" \
         WITH_ADNS=no \
         WITH_DOCS=no \
         WITH_SHARED_LIBRARIES=yes \
         WITH_SRV=no \
         WITH_STRIP=yes \
-        WITH_WEBSOCKETS=yes \
-        prefix=/usr \
-        binary && \
+        WITH_WEBSOCKETS=yes && \
     make install && \
     addgroup -S -g 1883 mosquitto 2>/dev/null && \
     adduser -S -u 1883 -D -H -h /var/empty -s /sbin/nologin -G mosquitto -g mosquitto mosquitto 2>/dev/null && \
@@ -81,9 +77,7 @@ RUN set -x && \
     tar --strip=1 -xf /tmp/mdm.tar.gz -C /build/mdm && \
     rm /tmp/mdm.tar.gz && \
     cd /build/mdm && \
-    sed -i 's|include_directories(/usr/local/include)|include_directories(${INC_DIR})|g' CMakeLists.txt && \
-    sed -i 's|link_directories(/usr/local/lib)|link_directories(${LIB_DIR})|g' CMakeLists.txt && \
-    cmake -DINC_DIR=/build/mosq/include -DLIB_DIR=/build/mosq/lib . && \
+    cmake . && \
     make -j "$(nproc)" && make install && \
     rm -rf /root/.cmake && \
     chown -R mosquitto:mosquitto /data && \
