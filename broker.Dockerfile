@@ -48,9 +48,9 @@ RUN set -x && \
     cd /build/mdm && \
     cmake . && \
     make -j "$(nproc)" && make install && \
-    
-    addgroup --gid 1883 mosquitto && useradd -s /bin/bash  -c mosquitto -d /data -g 1883 -G mosquitto -m -u 1883 mosquitto && \
+
     mkdir /data && chown mosquitto:mosquitto /data && \
+    addgroup --gid 1883 mosquitto && useradd -s /bin/bash  -c mosquitto -d /data -g 1883 -G mosquitto -m -u 1883 mosquitto && \
     
     rm -rf /tmp/* && rm -rf /build \
     apt purge -y wget build-essential cmake wget && apt autoremove -y && rm -rf /var/lib/apt/lists/*

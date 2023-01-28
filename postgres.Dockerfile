@@ -14,8 +14,8 @@ RUN apt update && apt install -y --no-install-recommends locales wget build-esse
     ./configure --prefix=/usr --with-zstd --with-lz4 --enable-nls --build=x86_64-debian-linux --with-llvm --with-icu --with-openssl --with-ossp-uuid build_alias=x86_64-debian-linux && \
     make world -j "$(nproc)" && make install-world && \
 
-    addgroup --gid 70 postgres && useradd -s /bin/bash  -c postgres -d /data -g 70 -G postgres -m -u 70 postgres && \
     mkdir /data && chown postgres:postgres /data && \
+    addgroup --gid 70 postgres && useradd -s /bin/bash  -c postgres -d /data -g 70 -G postgres -m -u 70 postgres && \
 
     rm -rf /tmp/* && \
     apt purge -y wget build-essential clang && apt autoremove -y && rm -rf /var/lib/apt/lists/*
