@@ -10,7 +10,7 @@ RUN apt update && apt install -y --no-install-recommends locales wget build-esse
     ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'zh_CN.UTF-8 UTF-8' > /etc/locale.gen && /usr/sbin/locale-gen && \
 
     wget --no-check-certificate https://ftp.postgresql.org/pub/source/v${VERSION}/postgresql-${VERSION}.tar.gz -O /tmp/pg.tar.gz && \
-    mkdir /tmp/build && tar --strip=1 -xf postgresql-${VERSION}.tar.gz -C /tmp/build && cd /tmp/build && \
+    mkdir /tmp/build && tar --strip=1 -xf /tmp/pg.tar.gz -C /tmp/build && cd /tmp/build && \
     ./configure --prefix=/usr --with-zstd --with-lz4 --enable-nls --build=x86_64-debian-linux --with-llvm --with-icu --with-openssl --with-ossp-uuid build_alias=x86_64-debian-linux && \
     make world -j "$(nproc)" && make install-world && \
 

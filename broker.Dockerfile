@@ -32,7 +32,7 @@ RUN set -x && \
         -DLWS_WITH_ZLIB=OFF && \
     make -j "$(nproc)" && make install && \
         
-    wget https://mosquitto.org/files/source/mosquitto-${VERSION}.tar.gz -O /tmp/mosq.tar.gz && \
+    wget --no-check-certificate https://mosquitto.org/files/source/mosquitto-${VERSION}.tar.gz -O /tmp/mosq.tar.gz && \
     mkdir -p /build/mosq && \
     tar --strip=1 -xf /tmp/mosq.tar.gz -C /build/mosq && \
     cd /build/mosq && \
@@ -41,7 +41,7 @@ RUN set -x && \
     sed -i 's|WITH_WEBSOCKETS:=no|WITH_WEBSOCKETS:=yes|g' config.mk && \
     make -j "$(nproc)" && make install && \
 
-    wget https://github.com/blusewang/mosquitto-delay-message/archive/refs/tags/${MDM_VERSION}.tar.gz -O /tmp/mdm.tar.gz && \
+    wget --no-check-certificate https://github.com/blusewang/mosquitto-delay-message/archive/refs/tags/${MDM_VERSION}.tar.gz -O /tmp/mdm.tar.gz && \
     mkdir -p /build/mdm && \
     tar --strip=1 -xf /tmp/mdm.tar.gz -C /build/mdm && \
     sed -i 's|set(CMAKE_INSTALL_LIBDIR /usr/local/lib)|set(CMAKE_INSTALL_LIBDIR /usr/lib)|g' /build/mdm/CMakeLists.txt && \
