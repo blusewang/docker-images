@@ -17,6 +17,7 @@ RUN apt update && apt install -y --no-install-recommends locales wget build-esse
     mkdir /data && \
     addgroup --gid 70 postgres && useradd -s /bin/bash  -c postgres -d /data -g 70 -G postgres -m -u 70 postgres && \
     chown postgres:postgres /data && \
+    cp /usr/share/postgresql/timezonesets/Asia.txt /usr/share/postgresql/timezonesets/Asia && \
 
     rm -rf /tmp/* && \
     apt purge -y wget build-essential clang && apt autoremove -y && rm -rf /var/lib/apt/lists/*
