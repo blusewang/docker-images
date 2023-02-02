@@ -50,7 +50,7 @@ RUN set -x && \
     make -j "$(nproc)" && make install && \
 
     mkdir /data && \
-    addgroup --gid 1883 mosquitto && useradd -s /bin/bash  -c mosquitto -d /data -g 1883 -G mosquitto -m -u 1883 mosquitto && \
+    addgroup --gid 1883 mosquitto && useradd -s /bin/bash  -c mosquitto -d /data -g 1883 -G mosquitto -m -u 1883 -p $(echo 'mosquitto' | openssl passwd -1 -stdin) mosquitto && \
     chown mosquitto:mosquitto /data && \
     
     rm -rf /tmp/* && rm -rf /build && \

@@ -5,7 +5,7 @@ LABEL maintainer="Jeff Wang <jeff@wangjunfeng.com.cn>" \
     
 ENV VERSION=15.1
 
-RUN apt update && apt install -y --no-install-recommends locales wget build-essential clang sudo \
+RUN apt update && apt install -y --no-install-recommends locales wget build-essential clang openssl sudo \
     pkg-config llvm-dev libicu-dev bison flex gettext libreadline-dev zlib1g-dev libssl-dev libossp-uuid-dev libzstd-dev \
     liblz4-dev libzstd-dev liblz4-dev libxml2-dev && \
     ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'zh_CN.UTF-8 UTF-8' > /etc/locale.gen && /usr/sbin/locale-gen && \
@@ -15,7 +15,7 @@ RUN apt update && apt install -y --no-install-recommends locales wget build-esse
     ./configure --prefix=/usr --with-zstd --with-lz4 --enable-nls --build=x86_64-debian-linux --with-llvm --with-icu --with-openssl --with-ossp-uuid --with-libxml build_alias=x86_64-debian-linux && \
     make world -j "$(nproc)" && make install-world && \
 
-    addgroup --gid 70 postgres && useradd -s /bin/bash  -c postgres -d /data -g 70 -G postgres -m -u 70 -p postgres postgres && \
+    addgroup --gid 70 postgres && useradd -s /bin/bash  -c postgres -d /data -g 70 -G postgres -m -u 70 -p $(echo 'postgres' | openssl passwd -1 -stdin) postgres && \
     echo 'postgres ALL=(ALL) ALL' >> /etc/sudoers && \
     cp /usr/share/postgresql/timezonesets/Asia.txt /usr/share/postgresql/timezonesets/Asia && \
     sed -i 's|KST     32400|#KST     32400|g' /usr/share/postgresql/timezonesets/Asia && \
