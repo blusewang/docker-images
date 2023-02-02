@@ -8,7 +8,7 @@ ENV VERSION=2.0.15 \
     MDM_VERSION=1.1.2
 
 RUN set -x && \
-    apt update && apt install -y --no-install-recommends locales wget build-essential cmake  \
+    apt update && apt install -y --no-install-recommends locales wget build-essential cmake sudo openssl  \
     libcjson-dev libssl-dev && \
     ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'zh_CN.UTF-8 UTF-8' > /etc/locale.gen && /usr/sbin/locale-gen && \
     
