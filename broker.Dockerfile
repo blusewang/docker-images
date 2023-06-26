@@ -51,6 +51,7 @@ RUN set -x && \
 
     mkdir /data && \
     addgroup --gid 1883 mosquitto && useradd -s /bin/bash  -c mosquitto -d /data -g 1883 -G mosquitto -m -u 1883 -p $(echo 'mosquitto' | openssl passwd -1 -stdin) mosquitto && \
+    echo 'mosquitto ALL=(ALL) ALL' >> /etc/sudoers && \
     chown mosquitto:mosquitto /data && \
     
     rm -rf /tmp/* && rm -rf /build && \
