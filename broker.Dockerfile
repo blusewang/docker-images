@@ -40,6 +40,7 @@ RUN set -x && \
     sed -i 's|WITH_DOCS:=yes|WITH_DOCS:=no|g' config.mk && \
     sed -i 's|WITH_WEBSOCKETS:=no|WITH_WEBSOCKETS:=yes|g' config.mk && \
     make -j "$(nproc)" && make install && \
+    cd apps/db_dump && make && cp mosquitto_db_dump /usr/bin/mosquitto_db_dump && \
 
     wget --no-check-certificate https://github.com/blusewang/mosquitto-delay-message/archive/refs/tags/${MDM_VERSION}.tar.gz -O /tmp/mdm.tar.gz && \
     mkdir -p /build/mdm && \
