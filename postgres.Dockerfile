@@ -5,7 +5,7 @@ LABEL maintainer="Jeff Wang <jeff@wangjunfeng.com.cn>" \
     
 ENV VERSION=15.3
 
-RUN apt update && apt install -y --no-install-recommends locales wget build-essential clang openssl sudo \
+RUN apt update && apt install -y --no-install-recommends locales wget build-essential clang cmake openssl sudo \
     pkg-config llvm-dev libicu-dev bison flex gettext libreadline-dev zlib1g-dev libssl-dev libossp-uuid-dev libzstd-dev \
     liblz4-dev libzstd-dev liblz4-dev libxml2-dev && \
     ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'zh_CN.UTF-8 UTF-8' > /etc/locale.gen && /usr/sbin/locale-gen && \
@@ -26,7 +26,7 @@ RUN apt update && apt install -y --no-install-recommends locales wget build-esse
     sed -i 's|IST      7200|#IST      7200|g' /usr/share/postgresql/timezonesets/Asia && \
 
     rm -rf /tmp/* && \
-    apt purge -y wget build-essential clang && apt autoremove -y && rm -rf /var/lib/apt/lists/*
+    apt purge -y wget build-essential clang cmake && apt autoremove -y && rm -rf /var/lib/apt/lists/*
 
 USER postgres
 VOLUME /data
