@@ -15,6 +15,10 @@ RUN apt update && apt install -y --no-install-recommends locales wget build-esse
     ./configure --prefix=/usr --with-zstd --with-lz4 --enable-nls --build=x86_64-debian-linux --with-llvm --with-icu --with-openssl --with-ossp-uuid --with-libxml build_alias=x86_64-debian-linux && \
     make world -j "$(nproc)" && make install-world && \
 
+    wget --no-check-certificate https://github.com/timescale/timescaledb/archive/refs/tags/2.11.2.tar.gz -O /tmp/ts.tar.gz && \
+    mkdir /tmp/mkts && tar --strip=1 -xf /tmp/ts.tar.gz -C /tmp/mkts && cd /tmp/mkts && \
+    ./bootstrap && cd build && make && make install && \
+
     addgroup --gid 70 postgres && useradd -s /bin/bash  -c postgres -d /data -g 70 -G postgres -m -u 70 -p $(echo 'postgres' | openssl passwd -1 -stdin) postgres && \
     echo 'postgres ALL=(ALL) ALL' >> /etc/sudoers && \
     cp /usr/share/postgresql/timezonesets/Asia.txt /usr/share/postgresql/timezonesets/Asia && \
