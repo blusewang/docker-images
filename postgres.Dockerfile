@@ -15,6 +15,7 @@ RUN apt update && apt install -y --no-install-recommends locales wget build-esse
     ./configure --prefix=/usr --with-zstd --with-lz4 --enable-nls --build=x86_64-debian-linux --with-llvm --with-openssl --with-ossp-uuid --with-libxml build_alias=x86_64-debian-linux && \
     make world -j "$(nproc)" && make install-world && \
 
+    git config --global http.sslverify false && \
     cd /tmp && git clone https://github.com/jaiminpan/pg_jieba && cd pg_jieba && git submodule update --init --recursive && \
     mkdir build && cd build && cmake .. && make && make install && \
 
