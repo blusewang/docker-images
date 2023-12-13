@@ -3,7 +3,7 @@ FROM debian:bullseye-slim
 LABEL maintainer="Jeff Wang <jeff@wangjunfeng.com.cn>" \
     description="Mosquitto MQTT Custom Edition Broker"
 
-ENV VERSION=2.0.15 \
+ENV VERSION=2.0.18 \
     LWS_VERSION=4.2.1 \
     MDM_VERSION=1.1.2
 
