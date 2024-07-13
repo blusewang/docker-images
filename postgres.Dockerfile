@@ -22,6 +22,10 @@ RUN apt update && apt install -y --no-install-recommends locales wget build-esse
     wget --no-check-certificate https://github.com/apache/age/releases/download/PG16%2Fv1.5.0-rc0/apache-age-1.5.0-src.tar.gz -O /tmp/age.tar.gz && \
     mkdir /tmp/age && tar --strip=1 -xf /tmp/age.tar.gz -C /tmp/age && cd /tmp/age && make && make install && \
 
+    wget --no-check-certificate https://github.com/paradedb/paradedb/releases/download/v0.8.3/pg_lakehouse-v0.8.3-debian-12-arm64-pg16.deb -O /tmp/pg_lakehouse-v0.8.3-debian-12-arm64-pg16.deb && \
+    apt-get install -y /tmp/pg_lakehouse-v0.8.3-debian-12-arm64-pg16.deb && \
+
+
     addgroup --gid 70 postgres && useradd -s /bin/bash  -c postgres -d /data -g 70 -G postgres -m -u 70 -p $(echo 'postgres' | openssl passwd -1 -stdin) postgres && \
     echo 'postgres ALL=(ALL) ALL' >> /etc/sudoers && \
     cp /usr/share/postgresql/timezonesets/Asia.txt /usr/share/postgresql/timezonesets/Asia && \
