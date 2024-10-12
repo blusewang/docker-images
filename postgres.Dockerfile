@@ -3,7 +3,7 @@ FROM debian:bullseye-slim
 LABEL maintainer="Jeff Wang <jeff@wangjunfeng.com.cn>" \
     description="PostgreSQL Custom Edition"
     
-ENV VERSION=16.4
+ENV VERSION=17.0
 
 RUN apt update && apt install -y --no-install-recommends locales wget build-essential clang cmake openssl sudo \
     pkg-config llvm-dev libicu-dev bison flex gettext libreadline-dev zlib1g-dev libssl-dev libossp-uuid-dev libzstd-dev \
@@ -18,9 +18,6 @@ RUN apt update && apt install -y --no-install-recommends locales wget build-esse
     git config --global http.sslverify false && \
     cd /tmp && git clone https://github.com/jaiminpan/pg_jieba && cd pg_jieba && git submodule update --init --recursive && \
     mkdir build && cd build && cmake .. && make && make install && \
-
-    wget --no-check-certificate https://github.com/apache/age/releases/download/PG16%2Fv1.5.0-rc0/apache-age-1.5.0-src.tar.gz -O /tmp/age.tar.gz && \
-    mkdir /tmp/age && tar --strip=1 -xf /tmp/age.tar.gz -C /tmp/age && cd /tmp/age && make && make install && \
 
     addgroup --gid 70 postgres && useradd -s /bin/bash  -c postgres -d /data -g 70 -G postgres -m -u 70 -p $(echo 'postgres' | openssl passwd -1 -stdin) postgres && \
     echo 'postgres ALL=(ALL) ALL' >> /etc/sudoers && \
