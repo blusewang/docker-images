@@ -3,9 +3,12 @@ FROM debian:bullseye-slim
 LABEL maintainer="Jeff Wang <jeff@wangjunfeng.com.cn>" \
     description="PostgreSQL Custom Edition"
     
-ENV VERSION=17.0
+ENV VERSION=16.6
 
-RUN apt update && apt install -y --no-install-recommends locales wget build-essential clang cmake openssl sudo \
+RUN set -x && \
+	sed -i s/deb.debian.org/mirrors.tuna.tsinghua.edu.cn/g /etc/apt/sources.list && \
+	sed -i s/security.debian.org/mirrors.tuna.tsinghua.edu.cn/g /etc/apt/sources.list && \
+    apt update && apt install -y --no-install-recommends locales wget build-essential clang cmake openssl sudo \
     pkg-config llvm-dev libicu-dev bison flex gettext libreadline-dev zlib1g-dev libssl-dev libossp-uuid-dev libzstd-dev \
     liblz4-dev libzstd-dev liblz4-dev libxml2-dev git && \
     ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'zh_CN.UTF-8 UTF-8' > /etc/locale.gen && /usr/sbin/locale-gen && \
@@ -16,8 +19,8 @@ RUN apt update && apt install -y --no-install-recommends locales wget build-esse
     make -j "$(nproc)" && make install && \
 
     git config --global http.sslverify false && \
-    cd /tmp && git clone https://github.com/jaiminpan/pg_jieba && cd pg_jieba && git submodule update --init --recursive && \
-    mkdir build && cd build && cmake .. && make && make install && \
+    cd /tmp && git clone https://github.com/timescale/timescaledb && cd timescaledb && git checkout 2.17.2 && \
+    ./bootstrap && cd build && make && make install && \
 
     addgroup --gid 70 postgres && useradd -s /bin/bash  -c postgres -d /data -g 70 -G postgres -m -u 70 -p $(echo 'postgres' | openssl passwd -1 -stdin) postgres && \
     echo 'postgres ALL=(ALL) ALL' >> /etc/sudoers && \
