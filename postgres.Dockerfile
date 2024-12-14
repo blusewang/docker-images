@@ -6,8 +6,6 @@ LABEL maintainer="Jeff Wang <jeff@wangjunfeng.com.cn>" \
 ENV VERSION=16.6
 
 RUN set -x && \
-	sed -i s/deb.debian.org/mirrors.tuna.tsinghua.edu.cn/g /etc/apt/sources.list && \
-	sed -i s/security.debian.org/mirrors.tuna.tsinghua.edu.cn/g /etc/apt/sources.list && \
     apt update && apt install -y --no-install-recommends locales wget build-essential clang cmake openssl sudo \
     pkg-config llvm-dev libicu-dev bison flex gettext libreadline-dev zlib1g-dev libssl-dev libossp-uuid-dev libzstd-dev \
     liblz4-dev libzstd-dev liblz4-dev libxml2-dev git && \
@@ -16,7 +14,7 @@ RUN set -x && \
     wget --no-check-certificate https://ftp.postgresql.org/pub/source/v${VERSION}/postgresql-${VERSION}.tar.gz -O /tmp/pg.tar.gz && \
     mkdir /tmp/build && tar --strip=1 -xf /tmp/pg.tar.gz -C /tmp/build && cd /tmp/build && \
     ./configure --prefix=/usr --with-zstd --with-lz4 --enable-nls --build=x86_64-debian-linux --with-llvm --with-openssl --with-ossp-uuid --with-libxml build_alias=x86_64-debian-linux && \
-    make -j "$(nproc)" && make install && \
+    make world -j "$(nproc)" && make install-world && \
 
     git config --global http.sslverify false && \
     cd /tmp && git clone https://github.com/timescale/timescaledb && cd timescaledb && git checkout 2.17.2 && \
