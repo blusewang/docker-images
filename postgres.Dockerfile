@@ -3,7 +3,7 @@ FROM debian:bullseye-slim
 LABEL maintainer="Jeff Wang <jeff@wangjunfeng.com.cn>" \
     description="PostgreSQL Custom Edition"
     
-ENV VERSION=17.2
+ENV VERSION=16.6
 
 RUN set -x && \
     apt update && apt install -y --no-install-recommends locales wget build-essential clang cmake openssl sudo \
