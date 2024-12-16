@@ -3,7 +3,7 @@ FROM debian:bullseye-slim
 LABEL maintainer="Jeff Wang <jeff@wangjunfeng.com.cn>" \
     description="PostgreSQL Custom Edition"
     
-ENV VERSION=16.6
+ENV VERSION=17.2
 
 RUN set -x && \
     apt update && apt install -y --no-install-recommends locales wget build-essential clang cmake openssl sudo \
@@ -14,7 +14,7 @@ RUN set -x && \
     wget --no-check-certificate https://ftp.postgresql.org/pub/source/v${VERSION}/postgresql-${VERSION}.tar.gz -O /tmp/pg.tar.gz && \
     mkdir /tmp/build && tar --strip=1 -xf /tmp/pg.tar.gz -C /tmp/build && cd /tmp/build && \
     ./configure --prefix=/usr --with-zstd --with-lz4 --enable-nls --build=x86_64-debian-linux --with-llvm --with-openssl --with-ossp-uuid --with-libxml build_alias=x86_64-debian-linux && \
-    make world -j "$(nproc)" && make install-world && \
+    make world-bin -j "$(nproc)" && make install-world-bin && \
 
     git config --global http.sslverify false && \
     cd /tmp && git clone https://github.com/timescale/timescaledb && cd timescaledb && git checkout 2.17.2 && \
