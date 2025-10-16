@@ -33,4 +33,4 @@ jobs:
           file: broker.Dockerfile
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           push: true
-          tags: bluse/broker:latest,bluse/broker:2.0.20
+          tags: bluse/broker:latest,bluse/broker:2.0.22
