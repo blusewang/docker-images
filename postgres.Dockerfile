@@ -6,7 +6,7 @@ LABEL maintainer="Jeff Wang <jeff@wangjunfeng.com.cn>" \
 ENV VERSION=18.0
 
 RUN set -x && \
-    apt update && apt install -y --no-install-recommends locales wget build-essential clang cmake openssl sudo zstd \
+    apt update && apt install -y --no-install-recommends locales wget build-essential clang cmake openssl sudo zstd vim nano \
     pkg-config llvm-dev libicu-dev bison flex gettext libreadline-dev zlib1g-dev libssl-dev libossp-uuid-dev libzstd-dev \
     liblz4-dev libzstd-dev liblz4-dev libxml2-dev docbook-xml docbook-xsl xsltproc opensp libxml2-utils sgml-data docbook-dsssl git && \
     ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'zh_CN.UTF-8 UTF-8' > /etc/locale.gen && /usr/sbin/locale-gen && \
