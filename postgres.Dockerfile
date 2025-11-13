@@ -3,7 +3,7 @@ FROM debian:bookworm-slim
 LABEL maintainer="Jeff Wang <jeff@wangjunfeng.com.cn>" \
     description="PostgreSQL Custom Edition"
     
-ENV VERSION=18.0
+ENV VERSION=18.1
 
 RUN set -x && \
     apt update && apt install -y --no-install-recommends locales wget build-essential clang cmake openssl sudo zstd vim nano \
