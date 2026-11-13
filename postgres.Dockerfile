@@ -1,4 +1,4 @@
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 
 LABEL maintainer="Jeff Wang <jeff@wangjunfeng.com.cn>" \
     description="PostgreSQL Custom Edition"
@@ -13,7 +13,7 @@ RUN set -x && \
 
     wget --no-check-certificate https://ftp.postgresql.org/pub/source/v${VERSION}/postgresql-${VERSION}.tar.gz -O /tmp/pg.tar.gz && \
     mkdir /tmp/build && tar --strip=1 -xf /tmp/pg.tar.gz -C /tmp/build && cd /tmp/build && \
-    ./configure --prefix=/usr --with-zstd --with-lz4 --enable-nls --build=x86_64-debian-linux --with-llvm --with-openssl --with-ossp-uuid --with-libxml build_alias=x86_64-debian-linux && \
+    ./configure --prefix=/usr --with-zstd --with-lz4 --enable-nls --with-llvm --with-openssl --with-ossp-uuid --with-libxml '--with-extra-version= (Jeff)' && \
     make world -j "$(nproc)" && make install-world && \
 
 #    git config --global http.sslverify false && \
