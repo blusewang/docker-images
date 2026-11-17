@@ -11,7 +11,7 @@ on:
 
 env:
   IMAGE: docker.io/bluse/postgres
-  VERSION: 19rc2
+  VERSION: 18.7
   DEBIAN_VERSION: bookworm
 
 jobs:
