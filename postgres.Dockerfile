@@ -6,7 +6,7 @@ LABEL maintainer="Jeff Wang <jeff@wangjunfeng.com.cn>" \
 RUN apt-get update && apt-get install -y --no-install-recommends locales wget build-essential clang cmake openssl sudo zstd vim nano adduser \
         pkg-config llvm-dev libicu-dev bison flex gettext libreadline-dev zlib1g-dev libssl-dev libossp-uuid-dev libzstd-dev \
         liblz4-dev libzstd-dev liblz4-dev libxml2-dev docbook-xml docbook-xsl xsltproc opensp libxml2-utils sgml-data docbook-dsssl git && \
-    && rm -rf /var/lib/apt/lists/* && \
+    rm -rf /var/lib/apt/lists/* && \
 # 适配中国区时间及编码
     ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'zh_CN.UTF-8 UTF-8' > /etc/locale.gen && /usr/sbin/locale-gen
 
