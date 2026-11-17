@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends locales wget bu
 # 适配中国区时间及编码
     ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'zh_CN.UTF-8 UTF-8' > /etc/locale.gen && /usr/sbin/locale-gen && \
 # 准备用户
-    addgroup --gid 70 postgres && useradd -s /bin/bash  -c postgres -d /data -g 70 -G postgres -m -u 70 -p $(echo 'postgres' | openssl passwd -1 -stdin) postgres && \
+    addgroup --gid 70 postgres && useradd -s /bin/bash -c postgres -d /data -g 70 -G postgres -m -u 70 -p $(echo 'postgres' | openssl passwd -1 -stdin) postgres && \
     echo 'postgres ALL=(ALL) ALL' >> /etc/sudoers
 
 ARG VERSION

@@ -11,7 +11,7 @@ on:
 
 env:
   IMAGE: docker.io/bluse/postgres
-  VERSION: 18.7
+  VERSION: 19rc2
 
 jobs:
   # 1. 各架构各自在原生机器上并行构建，并按 digest 推送
@@ -25,8 +25,8 @@ jobs:
           - platform: linux/arm64
             runner: ubuntu-24.04-arm
           # 如果不需要 32 位 ARM，把下面这两行删掉会更快
-          - platform: linux/arm/v7
-            runner: ubuntu-latest
+          #- platform: linux/arm/v7
+          #  runner: ubuntu-latest
 
     runs-on: ${{ matrix.runner }}
     steps:
