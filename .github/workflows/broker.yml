@@ -2,9 +2,11 @@ name: Broker Image CI
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches: 
+      - main
+    paths:
+      - 'broker.Dockerfile'
+      - '.github/workflows/broker.yml'
 
 jobs:
   broker:
