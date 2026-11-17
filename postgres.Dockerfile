@@ -3,7 +3,7 @@ FROM debian:trixie-slim
 LABEL maintainer="Jeff Wang <jeff@wangjunfeng.com.cn>" \
     description="PostgreSQL Custom Edition"
     
-ENV VERSION=19rc2
+ENV VERSION=18.7
 
 RUN set -x && \
 # 安装构建工具及依赖
@@ -15,7 +15,7 @@ RUN set -x && \
 # 构建
     wget --no-check-certificate https://ftp.postgresql.org/pub/source/v${VERSION}/postgresql-${VERSION}.tar.gz -O /tmp/pg.tar.gz && \
     mkdir /tmp/build && tar --strip=1 -xf /tmp/pg.tar.gz -C /tmp/build && cd /tmp/build && \
-    ./configure --prefix=/usr --with-zstd --with-lz4 --enable-nls --with-llvm --with-openssl --with-ossp-uuid --with-libxml '--with-extra-version= (Jeff)' && \
+    ./configure --prefix=/usr --with-zstd --with-lz4 --enable-nls --with-llvm --with-openssl --with-ossp-uuid --with-libxml '--with-extra-version= (Jeff)' --build="$(sh ./config/config.guess | sed 's/^\([^-]*\)-[^-]*-\(.*\)$/\1-jeff-\2/')" && \
     make world -j "$(nproc)" && make install-world && \
 # 暂不需要
 #    git config --global http.sslverify false && \
