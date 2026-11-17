@@ -8,15 +8,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends locales wget bu
         liblz4-dev libzstd-dev liblz4-dev libxml2-dev docbook-xml docbook-xsl xsltproc opensp libxml2-utils sgml-data docbook-dsssl git && \
     rm -rf /var/lib/apt/lists/* && \
 # 适配中国区时间及编码
-    ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'zh_CN.UTF-8 UTF-8' > /etc/locale.gen && /usr/sbin/locale-gen
+    ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'zh_CN.UTF-8 UTF-8' > /etc/locale.gen && /usr/sbin/locale-gen && \
+# 准备用户
+    addgroup --gid 70 postgres && useradd -s /bin/bash  -c postgres -d /data -g 70 -G postgres -m -u 70 -p $(echo 'postgres' | openssl passwd -1 -stdin) postgres && \
+    echo 'postgres ALL=(ALL) ALL' >> /etc/sudoers
 
 ARG VERSION
 
-RUN set -x && \
-# 构建
-    wget --no-check-certificate https://ftp.postgresql.org/pub/source/v${VERSION}/postgresql-${VERSION}.tar.gz -O /tmp/pg.tar.gz && \
+RUN wget --no-check-certificate https://ftp.postgresql.org/pub/source/v${VERSION}/postgresql-${VERSION}.tar.gz -O /tmp/pg.tar.gz && \
     mkdir /tmp/build && tar --strip=1 -xf /tmp/pg.tar.gz -C /tmp/build && cd /tmp/build && \
-    ./configure --prefix=/usr --with-zstd --with-lz4 --enable-nls --with-llvm --with-openssl --with-ossp-uuid --with-libxml && \
+    ./configure --prefix=/usr --with-zstd --with-lz4 --enable-nls --with-llvm --with-openssl --with-ossp-uuid --with-libxml \
     '--with-extra-version= (Jeff)' --build="$(sh ./config/config.guess | sed 's/^\([^-]*\)-[^-]*-\(.*\)$/\1-server-\2/')" && \
     make world -j "$(nproc)" && make install-world && \
 # 暂不需要
@@ -24,8 +25,6 @@ RUN set -x && \
 #    cd /tmp && git clone https://github.com/timescale/timescaledb && cd timescaledb && git checkout 2.17.2 && \
 #    ./bootstrap && cd build && make world && make install-world && \
 # 配置运行时需要的用户及应用级时区
-    addgroup --gid 70 postgres && useradd -s /bin/bash  -c postgres -d /data -g 70 -G postgres -m -u 70 -p $(echo 'postgres' | openssl passwd -1 -stdin) postgres && \
-    echo 'postgres ALL=(ALL) ALL' >> /etc/sudoers && \
     cp /usr/share/postgresql/timezonesets/Asia.txt /usr/share/postgresql/timezonesets/Asia && \
     sed -i 's|KST     32400|#KST     32400|g' /usr/share/postgresql/timezonesets/Asia && \
     sed -i 's|IST      7200|#IST      7200|g' /usr/share/postgresql/timezonesets/Asia && \
