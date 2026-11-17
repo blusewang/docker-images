@@ -1,4 +1,6 @@
+ARG VERSION=19rc2
 ARG DEBIAN_VERSION=bookworm
+
 FROM debian:${DEBIAN_VERSION}-slim
 
 LABEL maintainer="Jeff Wang <jeff@wangjunfeng.com.cn>" \
@@ -7,16 +9,13 @@ LABEL maintainer="Jeff Wang <jeff@wangjunfeng.com.cn>" \
 RUN apt-get update && apt-get install -y --no-install-recommends locales wget build-essential clang cmake openssl sudo zstd vim nano adduser \
         pkg-config llvm-dev libicu-dev bison flex gettext libreadline-dev zlib1g-dev libssl-dev libossp-uuid-dev tzdata \
         liblz4-dev libzstd-dev libxml2-dev docbook-xml docbook-xsl xsltproc opensp libxml2-utils sgml-data docbook-dsssl git && \
-    rm -rf /var/lib/apt/lists/* && \
 # 适配中国区时间及编码
     ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'zh_CN.UTF-8 UTF-8' > /etc/locale.gen && /usr/sbin/locale-gen && \
 # 准备用户
     addgroup --gid 70 postgres && useradd -s /bin/bash -c postgres -d /data -g 70 -G postgres -m -u 70 -p $(echo 'postgres' | openssl passwd -1 -stdin) postgres && \
-    echo 'postgres ALL=(ALL) ALL' >> /etc/sudoers
-
-ARG VERSION=19rc2
-
-RUN wget --no-check-certificate https://ftp.postgresql.org/pub/source/v${VERSION}/postgresql-${VERSION}.tar.gz -O /tmp/pg.tar.gz && \
+    echo 'postgres ALL=(ALL) ALL' >> /etc/sudoers && \
+# 构建
+    wget --no-check-certificate https://ftp.postgresql.org/pub/source/v${VERSION}/postgresql-${VERSION}.tar.gz -O /tmp/pg.tar.gz && \
     mkdir /tmp/build && tar --strip=1 -xf /tmp/pg.tar.gz -C /tmp/build && cd /tmp/build && \
     ./configure --prefix=/usr --with-zstd --with-lz4 --enable-nls --with-llvm --with-openssl --with-ossp-uuid --with-libxml \
     '--with-extra-version= (Jeff)' --build="$(sh ./config/config.guess | sed 's/^\([^-]*\)-[^-]*-\(.*\)$/\1-server-\2/')" && \
