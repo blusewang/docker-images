@@ -11,8 +11,8 @@ on:
 
 env:
   IMAGE: docker.io/bluse/postgres
-  VERSION: '19rc2'
-  DEBIAN_VERSION: trixie
+  VERSION: '19.0'
+  DEBIAN_VERSION: bookworm
 
 jobs:
   # 1. amd64 和 arm64 各自在原生机器上并行构建，并按 digest 推送
