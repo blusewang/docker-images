@@ -1,47 +1,37 @@
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 
 LABEL maintainer="Jeff Wang <jeff@wangjunfeng.com.cn>" \
     description="Mosquitto MQTT Custom Edition Broker"
 
-ENV VERSION=2.0.22 \
-    LWS_VERSION=4.2.1 \
+ENV VERSION=2.1.4 \
     MDM_VERSION=1.1.2
 
-RUN set -x && \
-    apt update && apt install -y --no-install-recommends locales wget build-essential cmake sudo openssl  \
-    libcjson-dev libssl-dev && \
-    ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'zh_CN.UTF-8 UTF-8' > /etc/locale.gen && /usr/sbin/locale-gen && \
-    
-    wget --no-check-certificate https://github.com/warmcat/libwebsockets/archive/v${LWS_VERSION}.tar.gz -O /tmp/lws.tar.gz && \
-    mkdir -p /build/lws && \
-    tar --strip=1 -xf /tmp/lws.tar.gz -C /build/lws && \
-    cd /build/lws && \
-    cmake . \
-        -DCMAKE_BUILD_TYPE=MinSizeRel \
-        -DCMAKE_INSTALL_PREFIX=/usr \
-        -DDISABLE_WERROR=ON \
-        -DLWS_IPV6=ON \
-        -DLWS_WITHOUT_BUILTIN_GETIFADDRS=ON \
-        -DLWS_WITHOUT_CLIENT=ON \
-        -DLWS_WITHOUT_EXTENSIONS=ON \
-        -DLWS_WITHOUT_TESTAPPS=ON \
-        -DLWS_WITH_EXTERNAL_POLL=ON \
-        -DLWS_WITH_HTTP2=OFF \
-        -DLWS_WITH_SHARED=OFF \
-        -DLWS_WITH_ZIP_FOPS=OFF \
-        -DLWS_WITH_ZLIB=OFF && \
-    make -j "$(nproc)" && make install && \
-        
+RUN set -ex && \
+    sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list.d/debian.sources && \
+    \
+    apt-get update && apt-get install -y --no-install-recommends \
+        locales wget ca-certificates build-essential cmake sudo openssl \
+        libcjson1 libssl3t64 libedit2 libmicrohttpd12t64 libsqlite3-0 \
+        libcjson-dev libssl-dev libedit-dev libmicrohttpd-dev libsqlite3-dev && \
+    ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
+    echo 'zh_CN.UTF-8 UTF-8' > /etc/locale.gen && \
+    /usr/sbin/locale-gen && \
+    \
     wget --no-check-certificate https://mosquitto.org/files/source/mosquitto-${VERSION}.tar.gz -O /tmp/mosq.tar.gz && \
     mkdir -p /build/mosq && \
     tar --strip=1 -xf /tmp/mosq.tar.gz -C /build/mosq && \
     cd /build/mosq && \
-    sed -i 's|prefix?=/usr/local|prefix?=/usr|g' config.mk && \
-    sed -i 's|WITH_DOCS:=yes|WITH_DOCS:=no|g' config.mk && \
-    sed -i 's|WITH_WEBSOCKETS:=no|WITH_WEBSOCKETS:=yes|g' config.mk && \
-    make -j "$(nproc)" && make install && \
-    cd apps/db_dump && make && cp mosquitto_db_dump /usr/bin/mosquitto_db_dump && \
-
+    cmake -B build \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_INSTALL_LIBDIR=lib \
+        -DWITH_DOCS=OFF \
+        -DWITH_TESTS=OFF \
+        -DWITH_WEBSOCKETS=ON \
+        -DWITH_WEBSOCKETS_BUILTIN=ON && \
+    cmake --build build -j "$(nproc)" && \
+    cmake --install build && \
+    ldconfig && \
+    \
     wget --no-check-certificate https://github.com/blusewang/mosquitto-delay-message/archive/refs/tags/${MDM_VERSION}.tar.gz -O /tmp/mdm.tar.gz && \
     mkdir -p /build/mdm && \
     tar --strip=1 -xf /tmp/mdm.tar.gz -C /build/mdm && \
@@ -49,15 +39,30 @@ RUN set -x && \
     cd /build/mdm && \
     cmake . && \
     make -j "$(nproc)" && make install && \
-
-    mkdir /data && \
-    addgroup --gid 1883 mosquitto && useradd -s /bin/bash  -c mosquitto -d /data -g 1883 -G mosquitto -m -u 1883 -p $(echo 'mosquitto' | openssl passwd -1 -stdin) mosquitto && \
+    \
+    mkdir -p /data && \
+    groupadd --gid 1883 mosquitto && \
+    useradd -s /bin/bash -c mosquitto -d /data -g 1883 -G mosquitto -m -u 1883 -p "$(echo 'mosquitto' | openssl passwd -1 -stdin)" mosquitto && \
     echo 'mosquitto ALL=(ALL) ALL' >> /etc/sudoers && \
     chown mosquitto:mosquitto /data && \
-    
-    rm -rf /tmp/* && rm -rf /build && \
-    apt purge -y wget build-essential cmake wget && apt autoremove -y && rm -rf /var/lib/apt/lists/*
-    
+    \
+    rm -rf /tmp/* /build && \
+    apt-get purge -y wget build-essential cmake \
+        libcjson-dev libssl-dev libedit-dev libmicrohttpd-dev libsqlite3-dev && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
+
+# mosquitto-gdb 扩展：源码私有，仓库只提交预编译产物（用 build-gdb.sh 重新生成）
+ARG TARGETARCH
+COPY prebuilt/ /opt/mosquitto-gdb/
+RUN set -eux; \
+    arch="${TARGETARCH:-$(dpkg --print-architecture)}"; \
+    if [ -f "/opt/mosquitto-gdb/libgdb-${arch}.so" ]; then \
+        install -m 0644 "/opt/mosquitto-gdb/libgdb-${arch}.so" /usr/lib/libgdb.so; \
+    else \
+        echo "WARNING: prebuilt/libgdb-${arch}.so 不存在，该架构不安装 mosquitto-gdb 扩展"; \
+    fi; \
+    rm -rf /opt/mosquitto-gdb
 
 VOLUME /data
 USER mosquitto

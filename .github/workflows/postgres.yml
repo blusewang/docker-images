@@ -12,27 +12,29 @@ on:
 env:
   IMAGE: docker.io/bluse/postgres
   VERSION: '19.0'
-  DEBIAN_VERSION: trixie
 
 jobs:
-  # 1. amd64 和 arm64 各自在原生机器上并行构建，并按 digest 推送
+  # 1. 并行构建 (amd64 / arm64) × (trixie / bookworm)，共 4 个任务，按 digest 推送
   build:
     strategy:
       fail-fast: false
       matrix:
-        include:
+        debian_version:
+          - trixie
+          - bookworm
+        target:
           - platform: linux/amd64
             runner: ubuntu-latest
           - platform: linux/arm64
             runner: ubuntu-24.04-arm
 
-    runs-on: ${{ matrix.runner }}
+    runs-on: ${{ matrix.target.runner }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Prepare platform name
         run: |
-          platform="${{ matrix.platform }}"
+          platform="${{ matrix.target.platform }}"
           echo "PLATFORM_PAIR=${platform//\//-}" >> "$GITHUB_ENV"
 
       - name: Set up Docker Buildx
@@ -50,15 +52,15 @@ jobs:
         with:
           context: .
           file: postgres.Dockerfile
-          platforms: ${{ matrix.platform }}
+          platforms: ${{ matrix.target.platform }}
           build-args: |
             VERSION=${{ env.VERSION }}
-            DEBIAN_VERSION=${{ env.DEBIAN_VERSION }}
+            DEBIAN_VERSION=${{ matrix.debian_version }}
           outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true,push=true
           provenance: false
           sbom: false
-          cache-from: type=gha,scope=${{ env.PLATFORM_PAIR }}-${{ env.DEBIAN_VERSION }}
-          cache-to: type=gha,mode=max,scope=${{ env.PLATFORM_PAIR }}-${{ env.DEBIAN_VERSION }}
+          cache-from: type=gha,scope=${{ env.PLATFORM_PAIR }}-${{ matrix.debian_version }}
+          cache-to: type=gha,mode=max,scope=${{ env.PLATFORM_PAIR }}-${{ matrix.debian_version }}
 
       - name: Export digest
         run: |
@@ -69,20 +71,31 @@ jobs:
       - name: Upload digest
         uses: actions/upload-artifact@v4
         with:
-          name: digests-${{ env.PLATFORM_PAIR }}
+          # 注意加上 debian_version，防止不同 Debian 版本的 artifact 重名覆盖
+          name: digests-${{ matrix.debian_version }}-${{ env.PLATFORM_PAIR }}
           path: ${{ runner.temp }}/digests/*
           retention-days: 1
 
-  # 2. 合并双架构镜像索引
+  # 2. 按 Debian 版本分别合并双架构镜像索引
   merge:
     needs: build
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - debian_version: trixie
+            is_latest: true    # 指定 trixie 同时打上 latest 标签
+          - debian_version: bookworm
+            is_latest: false
+
     steps:
       - name: Download digests
         uses: actions/download-artifact@v4
         with:
           path: ${{ runner.temp }}/digests
-          pattern: digests-*
+          # 只下载当前 Debian 版本对应的双架构 digest
+          pattern: digests-${{ matrix.debian_version }}-*
           merge-multiple: true
 
       - name: Login to Registry
@@ -97,7 +110,11 @@ jobs:
       - name: Create manifest list and push
         working-directory: ${{ runner.temp }}/digests
         run: |
+          TAGS=(-t "${{ env.IMAGE }}:${{ env.VERSION }}-${{ matrix.debian_version }}")
+          if [ "${{ matrix.is_latest }}" = "true" ]; then
+            TAGS+=(-t "${{ env.IMAGE }}:latest")
+          fi
+
           docker buildx imagetools create \
-            -t "${{ env.IMAGE }}:${{ env.VERSION }}-${{ env.DEBIAN_VERSION }}" \
-            -t "${{ env.IMAGE }}:latest" \
+            "${TAGS[@]}" \
             $(printf "${{ env.IMAGE }}@sha256:%s " *)
