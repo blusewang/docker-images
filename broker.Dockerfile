@@ -8,6 +8,7 @@ ENV VERSION=2.1.4 \
 
 RUN set -ex && \
     apt-get update && apt-get install -y --no-install-recommends \
+        nano vim tzdata adduser sudo htop wget curl \
         locales wget ca-certificates build-essential cmake sudo openssl \
         libcjson1 libssl3t64 libedit2 libmicrohttpd12t64 libsqlite3-0 \
         libcjson-dev libssl-dev libedit-dev libmicrohttpd-dev libsqlite3-dev && \
