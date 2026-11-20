@@ -7,8 +7,6 @@ ENV VERSION=2.1.4 \
     MDM_VERSION=1.1.2
 
 RUN set -ex && \
-    sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list.d/debian.sources && \
-    \
     apt-get update && apt-get install -y --no-install-recommends \
         locales wget ca-certificates build-essential cmake sudo openssl \
         libcjson1 libssl3t64 libedit2 libmicrohttpd12t64 libsqlite3-0 \
